@@ -1,8 +1,6 @@
-import React , {useState} from "react"
+import React from "react"
 import Image from "next/image"
 import {assets} from '@/Assets/assets'
-import axios from "axios";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 const Header = () => {

@@ -1,6 +1,6 @@
 import React from "react";
 
-const page = () => {
+const Page = () => {
   return (
     <>
       <div className="flex justify-center items-center h-screen">
@@ -9,4 +9,4 @@ const page = () => {
     </>
   )
 }
-export default page;
+export default Page;

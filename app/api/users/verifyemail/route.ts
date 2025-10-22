@@ -25,7 +25,10 @@ export async function POST(request:NextRequest) {
             success:true
         })
 
-    } catch (error:any) {
-         return NextResponse.json({error: "error at verigy email"}, {status:500})
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+                return NextResponse.json({error: error.message}, {status:500})
+        }
+        return NextResponse.json({error: "error at verigy email"}, {status:500})
     }
 }

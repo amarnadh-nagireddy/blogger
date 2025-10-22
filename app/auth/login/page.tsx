@@ -32,7 +32,12 @@ export default function LoginPage() {
             console.log("Login success", response.data);
             router.push("/admin");
 
-        }catch (error: any) {
+        }catch (error: unknown) {
+            if (!(error instanceof Error)) {
+                console.error("Sign up failed", error);
+                toast.error("An unknown error occurred"); 
+                return;
+            }
             console.log("Sign up failed", error.message);
             toast.error(error.message); 
         } 
@@ -49,7 +54,12 @@ export default function LoginPage() {
       });
       toast.success(res.data.message || "Password reset link sent!");
       setShowForgot(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (!(error instanceof axios.AxiosError)) {
+        console.error("Forgot password failed", error);
+        toast.error("An unknown error occurred");
+        return;
+      }
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
@@ -112,21 +122,14 @@ export default function LoginPage() {
               >
                 Cancel
               </button>
-              <button
-                onClick={handleForgotPassword}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-              >
+              <button onClick={handleForgotPassword} className="px-4 py-2 bg-blue-500 text-white rounded-lg">
                 Send Link
               </button>
             </div>
           </div>
         </div>
-      )}
-
-      
-        
-      
-      <p className="text-sm mt-2">Don't have an account? <span className="text-blue-600 text-base underline"><Link href="/auth/signup">sign up</Link></span></p>
+  )}
+      <p className="text-sm mt-2">{"Don't have an account?" }<span className="text-blue-600 text-base underline"><Link href="/auth/signup">sign up</Link></span></p>
     </div>
   ); 
 }

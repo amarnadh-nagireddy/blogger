@@ -2,7 +2,6 @@
 import React, { useEffect,useState } from 'react';
 import axios from 'axios';
 import BlogItem from './BlogItem';
-import { set } from 'mongoose';
 type Blog = {
     _id: string;
     image: string;
@@ -33,7 +32,7 @@ const BlogList = () => {
             <div className='flex flex-wrap justify-around gap-1 gap-y-10 mb-16 xl:mx-24'>
                 { blogs.filter((item)=>menu==="All"?true:item.category===menu).map((item,index) => {
 
-                    return <BlogItem key={index} image={item.image} id={item._id} description={item.description} title={item.title} category={item.category}/>
+                    return <BlogItem key={index} image={item.image} id={item._id}  title={item.title} category={item.category}/>
                 })}  
             </div>
         </div>

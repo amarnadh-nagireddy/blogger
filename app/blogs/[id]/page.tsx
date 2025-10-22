@@ -1,38 +1,42 @@
 "use client"
 
 import { StaticImageData } from "next/image";
-import React, { useEffect, useState, use  } from "react";
+import React, { useEffect, useState} from "react";
 import Image from "next/image";
 import { assets } from "@/Assets/assets";
 import axios from "axios";
 import DOMPurify from "dompurify";
+
 type blogType={
         id: number;
         title: string;
         description: string;
-        image: StaticImageData;
+        image: string;
         date: number;
         category: string;
         author: string;
         authorImg: StaticImageData;
     }
-const Page = ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = use(params);
-  
+const Page = ({ params }: { params: { id: string } }) => {
+    const { id } = params;
     
     const [data,setData]=useState<blogType | null>(null);
     
-    const fetchBlogData=async()=>{
-        const response= await axios.get(`/api/blog`, {
-            params: { id }
-        });
-        setData(response.data);
-        console.log(response);
-    }
+    useEffect(() => {
+        const fetchBlogData = async () => {
+            try {
+                const response = await axios.get(`/api/blog`, {
+                params: { id }
+            });
+            setData(response.data);
+            } catch (error) {
+                console.error("Error fetching blog:", error);
+            }
+        };
 
-    useEffect(()=>{
         fetchBlogData();
-    },[])
+    }, [id]);
+
     
     return (
        data? <>

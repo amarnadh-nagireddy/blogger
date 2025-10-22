@@ -19,7 +19,7 @@ import { $getRoot } from "lexical";
 
 
 
-function onError(error:any ){
+function onError(error:unknown ){
   console.error(error);
 }
 function EditorContent({ value, onChange }: { value?: string; onChange?: (html: string) => void }) {

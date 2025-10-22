@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import ConnectDB from "@/lib/config/db";
-import { writeFile } from "fs/promises";
 import BlogModel from "@/lib/models/BlogModel";
 import jwt from "jsonwebtoken";
-const fs=require("fs");
+import { UploadApiResponse } from 'cloudinary';
+
 import {v2 as cloudinary} from "cloudinary";
 
 cloudinary.config({
@@ -12,6 +12,15 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
     
 });
+
+
+interface JwtPayload {
+  id: string;
+  username: string;
+  email: string;
+  iat: number;
+  exp: number;
+}
 
 const LoadDB = async () => {
     await ConnectDB();
@@ -24,7 +33,7 @@ export async function GET(request: NextRequest) {
   const blogId = request.nextUrl.searchParams.get("id");
   const token = request.cookies.get("token")?.value;
 
-  console.log("Token:", blogId);
+  
 
   try {
     if (blogId) {
@@ -59,7 +68,7 @@ export async function GET(request: NextRequest) {
 
 
 
-export async function POST(request: any) {
+export async function POST(request: NextRequest) {
     try {
         const token = request.cookies.get("token")?.value;
         if (!token) {
@@ -68,27 +77,22 @@ export async function POST(request: any) {
 
         const decoded = jwt.verify(token, process.env.TOKEN_SECRET!);
         const userId = (decoded as { id: string }).id;
-
-        
-
         const formData = await request.formData();
-        const timeStamp = Date.now();
-
-        
         const image = formData.get("image") as File;
         const imageByteData = await image.arrayBuffer();
         const buffer = Buffer.from(imageByteData);
-        const res=await new Promise<any>((resolve, reject)=>{
-            const uploadStream=cloudinary.uploader.upload_stream({folder:"blog_images"}, (error:any, result:any)=>{
-                if(error) reject(error);
-                else resolve(result);
-
-            })
-            uploadStream.end(buffer);
-          });
+        const res = await new Promise<UploadApiResponse>((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "blog_images" },
+            (error: Error | undefined, result: UploadApiResponse | undefined) => {
+              if (error) reject(error);
+              else if (result) resolve(result);
+              else reject(new Error('Upload failed with unknown error'));
+            }
+          );
+          uploadStream.end(buffer);
+        });
         const imageUrl = res.secure_url;
-          
-      
         const blogData = {
             title: formData.get("title"),
             description: formData.get("description"),
@@ -104,19 +108,26 @@ export async function POST(request: any) {
 
         return NextResponse.json({ success: true, message: "Blog Added", blogData }, { status: 201 });
 
-    } catch (err: any) {
-        console.error("Error saving blog:", err);
-        return NextResponse.json({ success: false, message: err.message }, { status: 500 });
+    }catch (err: unknown) {
+      console.error("Error saving blog:", err);
+
+      let message = "Unknown error";
+
+      if (err instanceof Error) {
+        message = err.message;
+      }
+
+      return NextResponse.json({ success: false, message }, { status: 500 });
     }
 }
 
-export async function PUT(request: any) {
+export async function PUT(request: NextRequest) {
   try {
     const token = request.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
-    const decoded: any = jwt.verify(token, process.env.TOKEN_SECRET!);
+    const decoded= jwt.verify(token, process.env.TOKEN_SECRET!) as JwtPayload;
     const userId = decoded.id;
 
     const blogId = request.nextUrl.searchParams.get("id");
@@ -141,32 +152,26 @@ export async function PUT(request: any) {
     blog.description = formData.get("description")?.toString() || blog.description;
     blog.category = formData.get("category")?.toString() || blog.category;
     blog.authorImg = formData.get("authorImg")?.toString() || blog.authorImg;
-
-    const image = formData.get("image") as File | null;
-    if (image) {
-      // Delete old image if exists
-      if (blog.image) {
-        fs.unlink(`./public/${blog.image.split("/").pop()}`, () => {});
-      }
-
-      const timeStamp = Date.now();
-      const imageByteData = await image.arrayBuffer();
-      const buffer = Buffer.from(imageByteData);
-      const path = `./public/${timeStamp}_${image.name}`;
-      await writeFile(path, buffer);
-      blog.image = `/${timeStamp}_${image.name}`;
-    }
+    
+   
 
     await blog.save();
     return NextResponse.json({ success: true, message: "Blog updated successfully", blog }, { status: 200 });
-  } catch (err: any) {
-    console.error(err);
-    return NextResponse.json({ success: false, message: err.message || "Something went wrong" }, { status: 500 });
-  }
+  } catch (err: unknown) {
+      console.error("Error saving blog:", err);
+
+      let message = "Unknown error";
+
+      if (err instanceof Error) {
+        message = err.message;
+      }
+
+      return NextResponse.json({ success: false, message }, { status: 500 });
+    }
 }
 
 
-export async function DELETE(request: any) {
+export async function DELETE(request: NextRequest) {
   try {
     const token = request.cookies.get("token")?.value;
     if (!token) {
@@ -191,17 +196,20 @@ export async function DELETE(request: any) {
     }
 
     
-    if (blog.image) {
-      fs.unlink(`./public/${blog.image}`, (err:any) => {
-        if (err) console.error("Failed to delete image:", err);
-      });
-    }
+    
     await BlogModel.findByIdAndDelete(blogId);
 
     return NextResponse.json({ success: true, message: "Blog deleted successfully" }, { status: 200 });
 
-  } catch (err: any) {
-    console.error(err);
-    return NextResponse.json({ success: false, message: "Failed to delete blog" }, { status: 500 });
-  }
+  } catch (err: unknown) {
+      console.error("Error Deleting blog:", err);
+
+      let message = "Unknown error";
+
+      if (err instanceof Error) {
+        message = err.message;
+      }
+
+      return NextResponse.json({ success: false, message }, { status: 500 });
+    }
 }

@@ -1,14 +1,12 @@
 "use client";
+import React,{useState,useEffect, use, ChangeEvent, FormEvent} from "react";
 
-import React,{useState, useEffect, use} from "react";
-import Image from "next/image";
-import { assets } from "@/Assets/assets";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import Editor from "@/Components/AdminComponents/Editor";
 import { useRouter } from "next/navigation";
 
-const  page = ({ params }: { params: Promise<{ id: string }> }) => {
+const  Page = ({ params }: { params: Promise<{ id: string }> }) => {
   const router = useRouter();
   const { id } = use(params);
   
@@ -18,9 +16,8 @@ const  page = ({ params }: { params: Promise<{ id: string }> }) => {
     category: "",
     authorImg: "/profile_icon.png",
   });
-  const [image, setImage] = useState<File | null>(null);
+  
 
-  // Fetch previous data
  useEffect(() => {
   if (!id) return;
 
@@ -35,8 +32,12 @@ const  page = ({ params }: { params: Promise<{ id: string }> }) => {
         category: blog.category,
         authorImg: blog.authorImg,
       });
-      console.log(blog || "No blog data");
-    } catch (err) {
+      
+    } catch (err: unknown) {
+      if (err instanceof AxiosError && err.response) {
+        toast.error(`Error: ${err.response.data.message}`);
+        return;
+      }
       toast.error("Failed to fetch blog");
     }
   };
@@ -44,19 +45,19 @@ const  page = ({ params }: { params: Promise<{ id: string }> }) => {
   fetchBlog();
 }, [id]);
 
-  const onChangeHandler = (e: any) => {
+  const onChangeHandler = (e:ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setData(prev => ({ ...prev, [name]: value }));
   };
 
-  const onSubmitHandler = async (e: any) => {
+  const onSubmitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("category", data.category);
     formData.append("authorImg", data.authorImg);
-    if (image) formData.append("image", image);
+   
 
     try {
       const res = await axios.put('/api/blog/',formData, { params: { id } });
@@ -66,8 +67,13 @@ const  page = ({ params }: { params: Promise<{ id: string }> }) => {
       } else {
         toast.error("Error updating blog");
       }
-    } catch (err) {
-      toast.error("Server error");
+    } catch (err: unknown) {
+      if (err instanceof AxiosError && err.response) {
+        toast.error(`Error: ${err.response.data.message}`);
+        return;
+      }
+      toast.error("An unexpected error occurred");
+
     }
   };
 
@@ -99,4 +105,4 @@ const  page = ({ params }: { params: Promise<{ id: string }> }) => {
   );
 };
 
-export default page;
+export default Page;

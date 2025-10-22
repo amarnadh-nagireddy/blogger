@@ -1,8 +1,13 @@
 import nodemailer from 'nodemailer';
 import User from '@/lib/models/UserModel';
 import bcryptjs from 'bcryptjs';
+type EmailParams = {
+  email: string;
+  emailType: 'RESET' | 'VERIFY'; 
+  userId: string;
+};
 
-export const sendEmail =async ({email, emailType,userId}:any)=>{
+export const sendEmail =async ({email, emailType,userId}:EmailParams)=>{
     try {
         console.log(userId);
         const hashedToken=await bcryptjs.hash(userId.toString(),10);
@@ -18,7 +23,7 @@ export const sendEmail =async ({email, emailType,userId}:any)=>{
             })
         }
         console.log("Test message");
-        var transport = nodemailer.createTransport({
+        const transport = nodemailer.createTransport({
                 host: "smtp.gmail.com",
                 port: 465,
                 auth: {
@@ -35,8 +40,13 @@ export const sendEmail =async ({email, emailType,userId}:any)=>{
         }
         const mailResponse = await transport.sendMail(mailOptions);
         return mailResponse;
-    } catch (error:any) {
+    } catch (error: unknown) {
+    if (error instanceof Error) {
+        console.error("Email sending failed:", error.message);
         throw new Error("Sending mail issue");
-        
+    } else {
+        throw new Error("Unknown error occurred while sending mail");
     }
+}
+
 }

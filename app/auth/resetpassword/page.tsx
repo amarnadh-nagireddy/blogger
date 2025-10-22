@@ -1,27 +1,30 @@
 "use client"
-import axios from "axios";
+import axios from 'axios';
+
 import React, {useEffect, useState} from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-export default function verifyEmail(){
+export default function Page(){
     const [token, setToken]=useState("");
     const [showPassword, setShowPassword]=useState(false);
     const [buttonDisabled, setButtonDisabled]=useState(true);
-    const [verified,setVerified]=useState(false);
-    const [error,setError]=useState(false);
     const [password,setPassword]=useState("");
     const router=useRouter();
     const resetPassword=async()=>{
         try {
            await  axios.post('/api/users/resetpassword',{token,password});
-           setVerified(true);
            toast.success("Password reset successful") 
            router.push("/auth/login")
-        } catch (error:any) {
-            setError(true);
-            console.log(error.response.data);
-            
-        }
+        } catch (error: unknown) {
+                toast.error("Failed to reset password");
+
+            if (axios.isAxiosError(error)) {
+                console.log(error.response?.data);
+            } else {
+                console.error("Unexpected error:", error);
+            }
+         }
+
     }
     useEffect(()=>{
         setToken(window.location.search.split('=')[1])

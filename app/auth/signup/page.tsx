@@ -22,7 +22,12 @@ export default function SignupPage() {
             console.log("Sign up success", response.data);
             router.push("/auth/login");
 
-        }catch (error: any) {
+        }catch (error: unknown) {
+            if (!(error instanceof Error)) {
+                console.error("Sign up failed", error);
+                toast.error("An unknown error occurred"); 
+                return;
+            }
             console.log("Sign up failed", error.message);
             toast.error(error.message); 
         } 

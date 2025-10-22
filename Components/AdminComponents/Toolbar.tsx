@@ -89,7 +89,7 @@ export default function Toolbar() {
         if (value === "paragraph") {
           $setBlocksType(selection, () => $createParagraphNode());
         } else {
-          $setBlocksType(selection, () => $createHeadingNode(value as any));
+          $setBlocksType(selection, () => $createHeadingNode(value as "h1" | "h2" | "h3" ));
         }
       }
     });

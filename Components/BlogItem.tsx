@@ -1,9 +1,14 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import DOMPurify from "dompurify";
 import {assets} from '@/Assets/assets'
-const BlogItem=({title,category,image,description,id}:any) => {
+type blogItemType={
+    title: string;
+    category: string;
+    image: string;
+    id: string;
+}
+const BlogItem=({title,category,image,id}:blogItemType) => {
     return (
         <div className="max-w-[330px] sm:max-w-[300px] bg-white border border-black hover:shadow-[-7px_7px_0px_#000]"> 
         <Link href={`/blogs/${id}`}>  

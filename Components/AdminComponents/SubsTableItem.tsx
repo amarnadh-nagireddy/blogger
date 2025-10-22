@@ -1,6 +1,11 @@
 import React from "react";
-
-const SubsTableItem = ({email,date,mongoId,deleteEmail} :any) => {
+type subsTableType={
+    mongoId: number;
+    email: string;
+    date: number;
+    deleteEmail: (mongoId:number)=>Promise<void>;
+}
+const SubsTableItem = ({email,date,mongoId,deleteEmail} :subsTableType) => {
     return(
         <tr className="bg-white border-b text-left"> 
             <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">

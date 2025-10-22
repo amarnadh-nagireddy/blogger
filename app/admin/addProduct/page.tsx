@@ -1,20 +1,16 @@
 "use client"
 
-import React,{useState, useEffect, use} from "react";
+import React,{useState, ChangeEvent, FormEvent} from "react";
 import Image from "next/image";
 import { assets } from "@/Assets/assets";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Editor from "@/Components/AdminComponents/Editor";
 
-    
-const page = () => {
-    const [image, setImage] = useState<File | null>(null);
-    
-    
-     
-    
 
+    
+const Page = () => {
+    const [image, setImage] = useState<File | null>(null);
     const [data,setData]=useState({
         title:"",
         description:"",
@@ -22,15 +18,15 @@ const page = () => {
         authorImg:"/profile_icon.png"
     });
     
-    const onChangeHandler=(e:any)=>{
+    const onChangeHandler=(e:ChangeEvent<HTMLInputElement | HTMLSelectElement>)=>{
         const name=e.target.name;
         const value=e.target.value;
         setData(data=>({...data,[name]:value}));
-        console.log(data);
+        
     }
     
 
-    const onSubmitHandler=async(e:any)=>{
+    const onSubmitHandler=async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
        
         const formData=new FormData();
@@ -93,4 +89,4 @@ const page = () => {
         </>
     )
 }
-export default page;
+export default Page;

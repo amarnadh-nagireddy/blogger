@@ -1,8 +1,13 @@
 import React from "react";
-import Image from "next/image";
-import { assets } from "@/Assets/assets";
 import { useRouter } from "next/navigation";
-const BlogTableItem = ({authorImg,title,author,date,mongoId,deleteBlog} :any) => {
+ type blogTableType={
+        mongoId: number;
+        title: string;
+        date: number;
+        deleteBlog: (mongoId:number)=>Promise<void>;
+    }
+  
+const BlogTableItem = ({title,date,mongoId,deleteBlog} :blogTableType) => {
     const BlogDate=new Date(date);
     const router = useRouter();
     return (   

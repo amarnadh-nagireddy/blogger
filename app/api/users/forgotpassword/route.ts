@@ -28,7 +28,10 @@ export async function POST(request: NextRequest){
         })
 
 
-    }catch(error: any){
+    }catch(error: unknown){
+        if (error instanceof Error) {
+            console.log("Error at RESET", error.message);
+        }
         return NextResponse.json({error: "Error at RESET"}, {status:500})
     }
 }

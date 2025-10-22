@@ -1,9 +1,7 @@
 "use client"
 
-import React,{useState,use,useEffect} from "react";
+import React,{useState,useEffect} from "react";
 import BlogTableItem from "@/Components/AdminComponents/BlogTableItem";
-import { set } from "mongoose";
-import { blog_data } from "@/Assets/assets";
 import { StaticImageData } from "next/image";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -29,7 +27,7 @@ const Page = () => {
         const response= await axios.get(`/api/blog`);
         setBlogs(response.data.blogs || []);
     }
-    const deleteBlog=async (mongoId:any)=>{
+    const deleteBlog=async (mongoId:number)=>{
         const response= await axios.delete(`/api/blog`, {
             params: { id:mongoId }
         });
@@ -60,7 +58,7 @@ const Page = () => {
                     </thead>
                     <tbody>
                         {blogs.map((item,index)=>{
-                            return <BlogTableItem key={index} mongoId={item._id} authorImg={item.authorImg} title={item.title} date={item.date} author={item.author} deleteBlog={deleteBlog}/>
+                            return <BlogTableItem key={index} mongoId={item._id} title={item.title} date={item.date} deleteBlog={deleteBlog}/>
                         })}
                         
                     </tbody>

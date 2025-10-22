@@ -3,7 +3,7 @@ import { assets } from "@/Assets/assets";
 import Sidebar from "@/Components/AdminComponents/sidebar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer} from 'react-toastify';
 export default function Layout({children}: {children:React.ReactNode}){
     const router = useRouter();
     return (
